@@ -140,7 +140,7 @@ If upload fails, the record stays at `is_synced = 0` and retries automatically n
 ### App Shell
 
 `main.dart` sets up:
-- MusikaKhula teal theme (`#0F6E56 a.k.a MM_Green`)
+- MusikaKhula teal theme (`#0F6E56 a.k.a MK_Green`)
 - Bottom navigation bar (Home / Analysis / Stock Track / More)
 - Placeholder screens for all four tabs
 

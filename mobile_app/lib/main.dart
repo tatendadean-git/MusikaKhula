@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const int MM_Green = 0xFF0F6E56;
+const int MK_Green = 0xFF0F6E56;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,8 +17,8 @@ class MusikaKhulaApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(MM_Green),
-          primary: const Color(MM_Green),
+          seedColor: const Color(MK_Green),
+          primary: const Color(MK_Green),
         ),
         scaffoldBackgroundColor: const Color(0xFFF0F4F3),
         appBarTheme: const AppBarTheme(
@@ -62,7 +62,7 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
-        selectedItemColor: const Color(MM_Green),
+        selectedItemColor: const Color(MK_Green),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
@@ -91,7 +91,7 @@ class _PlaceholderScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 64, color: const Color(MM_Green).withOpacity(0.3)),
+            Icon(icon, size: 64, color: const Color(MK_Green).withOpacity(0.3)),
             const SizedBox(height: 16),
             Text(message, style: const TextStyle(color: Colors.grey)),
           ],
