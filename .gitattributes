@@ -1,9 +1,15 @@
-android/**/* linguist-vendored
-ios/**/* linguist-vendored
-linux/**/* linguist-vendored
-macos/**/* linguist-vendored
-windows/**/* linguist-vendored
-web/**/* linguist-vendored
+# Hide native platform folders inside subdirectories
+**/android/**/* linguist-vendored
+**/ios/**/* linguist-vendored
+**/linux/**/* linguist-vendored
+**/macos/**/* linguist-vendored
+**/windows/**/* linguist-vendored
+**/web/**/* linguist-vendored
 
+# Explicitly hide build files and platform-specific languages
 **/CMakeLists.txt linguist-vendored
 **/*.cmake linguist-vendored
+**/*.cpp linguist-vendored
+**/*.h linguist-vendored
+**/*.swift linguist-vendored
+**/*.html linguist-vendored
