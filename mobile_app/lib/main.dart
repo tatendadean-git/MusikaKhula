@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'screens/home_screen.dart';
+import 'screens/analysis_screen.dart';
+import 'screens/stock_track_screen.dart';
+import 'screens/more_screen.dart';
 
 const int MK_Green = 0xFF0F6E56;
 
@@ -49,10 +53,10 @@ class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
-    _PlaceholderScreen(title: 'Home', icon: Icons.home_outlined, message: 'Home screen : coming next'),
-    _PlaceholderScreen(title: 'Analysis', icon: Icons.bar_chart, message: 'Analysis : coming soon'),
-    _PlaceholderScreen(title: 'Stock Track', icon: Icons.inventory_2_outlined, message: 'Stock tracking : coming soon'),
-    _PlaceholderScreen(title: 'More', icon: Icons.settings_outlined, message: 'Settings : coming soon'),
+    HomeScreen(),
+    AnalysisScreen(),
+    StockTrackScreen(),
+    MoreScreen(),
   ];
 
   @override
@@ -72,30 +76,6 @@ class _MainShellState extends State<MainShell> {
           BottomNavigationBarItem(icon: Icon(Icons.list_alt_outlined), activeIcon: Icon(Icons.list_alt), label: 'Stock Track'),
           BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
         ],
-      ),
-    );
-  }
-}
-
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final String message;
-  const _PlaceholderScreen({required this.title, required this.icon, required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 64, color: const Color(MK_Green).withOpacity(0.3)),
-            const SizedBox(height: 16),
-            Text(message, style: const TextStyle(color: Colors.grey)),
-          ],
-        ),
       ),
     );
   }
