@@ -1,10 +1,10 @@
 # MusikaKhula 
 
-**Empowering Women Businesswomen in Zimbabwe - Record. Track. Grow. Unlock Loans.**
+**Empowering Businesswomen in Zimbabwe - Record. Track. Grow. Unlock Loans.**
 
-A mobile-first fintech platform for informal market traders in Zimbabwe. MusikaKhula enables traders to record daily sales, track inventory, and build a **Financial Health Score** (a data-driven credit proxy on the 300-850 scale) that can unlock access to micro-loans from partner financial institutions.
+A mobile-first fintech platform for informal market traders in Zimbabwe (e.g., Mbare Musika, Bulawayo City Centre, Makokoba, Sakubva). MusikaKhula enables traders to record daily sales with auto-fill inventory lookups, track real-time stock levels with color-coded status badges, manage credit sales (Chikwereti), and build a verifiable **Financial Health Score** (FHS) that can unlock access to micro-loans from partner financial institutions.
 
-Built with Flutter + SQLite (offline-first) + Supabase (cloud sync).
+Built with Flutter + SQLite (offline-first architecture).
 
 ---
 
@@ -13,7 +13,7 @@ Built with Flutter + SQLite (offline-first) + Supabase (cloud sync).
 | Phase | Name | Status |
 |-|-|-|
 | **Phase 0** | Environment & Foundation | **COMPLETE** |
-| Phase 1 | Core Screens | In Progress |
+| **Phase 1** | Core Screens & Business Logic | **COMPLETE** |
 | Phase 2 | Reports & Analytics | Planned |
 | Phase 3 | Authentication & Cloud Sync | Planned |
 | Phase 4 | Intelligent Features | Planned |
@@ -21,29 +21,35 @@ Built with Flutter + SQLite (offline-first) + Supabase (cloud sync).
 
 ---
 
-## What MusikaKhula Does
+## Phase 1 Implemented Features
 
-Informal traders at markets like **Mbare Musika (Harare)**, **Bulawayo City Centre**, and **Sakubva (Mutare)** have no formal income records, no bank statements, and no credit history, making them invisible to traditional microfinance institutions.
+### 1. Core Screens (`home_screen.dart`, `analysis_screen.dart`, `stock_track_screen.dart`, `more_screen.dart`, `record_sale_screen.dart`)
+- **Home Screen**: 
+  - Offline Mode active indicator banner.
+  - Gradient profit card displaying aggregated profits and financial status.
+  - Credit health card (`Fair` / score `591`).
+  - Services grid (Sale, Forecast, Currency, M-Money, Savings, Loans, Alerts).
+  - Summary cards (Total Products, Total Revenue, Total Sold, Expenses / COGS).
+- **Analysis Screen**:
+  - Business performance metrics (Total Revenue, Total Profit, Total Units Sold).
+- **Stock Track Screen (Inventory Management)**:
+  - Real-time stock tracking with inventory items.
+  - Status badges with optimized UX coloring: **Green** for High, **Yellow (Amber)** for Medium, and **Red** for Low / Out of Stock.
+  - Interactive bottom sheet context menu for each item supporting **Quick Restock**, **Fix Mistake / Edit Details**, and **Delete Product Listing**.
+  - Duplicate product prevention advising users to use Quick Restock.
+- **More Screen**:
+  - Comprehensive settings & features list: Vendor Intelligence, Change Language, Disable Offline Mode, Toggle Dark/Light Mode, Data Sync Status, Voice Mode, Backup & Restore, and Support Chat.
+- **Record Sale Screen**:
+  - Autocomplete & dropdown product lookup linked to inventory with automatic category and cost price auto-fill.
+  - Zimbabwean Multi-Currency support: **`USD`**, **`ZiG`**, and **`Rand (ZAR)`**.
+  - Local Payment Methods: **`Cash`**, **`EcoCash`**, **`OneMoney`**, and **`Credit given (Chikwereti)`**.
+  - Real-time live profit calculation with safety guards against empty input states.
+  - Today's sales list and automatic SQLite inventory stock deduction upon saving.
 
-MusikaKhula fixes this by:
-
-- **Recording every sale** locally on the trader's phone (no internet required)
-- **Tracking inventory** and automatically reducing stock when a sale is recorded
-- **Computing a Financial Health Score** from six behavioural signals (Sales Consistency, Revenue Stability, Restock Velocity, Savings Behaviour, Transaction Volume Growth, Multi-Currency Handling)
-- **Syncing to Supabase** when connectivity is available, building a verifiable transaction history
-- **Surfacing micro-loan offers** to traders whose **Financial Health System** (FHS) meets the qualification threshold
-
----
-
-## Zimbabwean Context
-
-| Feature | Why it matters |
-|-|-|
-| **Offline-first** | Informal markets have unreliable mobile data |
-| **English / Shona / Ndebele** | Three languages for the three major language groups |
-| **USD / ZiG / ZAR** | Zimbabwe's multi-currency cash economy |
-| **EcoCash / OneMoney** | Dominant mobile money platforms |
-| **PIN-based login** | No email required, uses phone number + 4-digit PIN |
+### 2. Zimbabwean Market Context & Architecture
+- **Chikwereti (Credit given)**: Isolates customer debt and credit sales from immediate liquid cash flow in database revenue/profit aggregations (`payment_method != 'Credit given (Chikwereti)'`), preventing "ghost" cash collections.
+- **Immutable Sales Snapshot Architecture**: Stores static price/category snapshots in individual sale records to insulate historical financial logs from future inventory wholesale cost fluctuations.
+- **Strict Input Security & Validation**: Fortified numerical inputs with integer-only and 2-decimal precision formatters (`FilteringTextInputFormatter`) and rigorous form validators to block data entry threats.
 
 ---
 
@@ -52,11 +58,9 @@ MusikaKhula fixes this by:
 | Layer | Technology | Purpose |
 |-|-|-|
 | Mobile | Flutter 3.44.8 (Dart) | Cross-platform Android app |
-| Local DB | SQLite (sqflite) | Offline-first data storage |
-| Cloud DB | Supabase (PostgreSQL) | Cloud sync + authentication |
-| Charts | fl_chart | Business reports visualisation |
+| Local DB | SQLite (sqflite) | Offline-first data storage & unique constraints |
+| Cloud DB | Supabase (PostgreSQL) | Cloud sync + authentication (Phase 3+) |
 | Research | R / tidymodels | Credit scoring model |
-| Backend | FastAPI (Python) | Phase 3+ API server |
 | Version Control | Git / GitHub | Full history from day one |
 
 ---
@@ -69,188 +73,18 @@ MusikaKhula/
 |- mobile_app/          <- Flutter project (Phases 0-5)
 |   |- lib/
 |   |   |- models/      <- Data structures (Sale, InventoryItem)
-|   |   |- services/    <- Database layer (DatabaseHelper)
-|   |   |- screens/     <- 18 UI screens
-|   |   |- widgets/     <- Reusable UI components
-|   |   |- main.dart    <- App entry point
+|   |   |- services/    <- Database layer (DatabaseHelper singleton)
+|   |   |- screens/     <- Implemented Phase 1 screens (Home, Analysis, StockTrack, More, RecordSale)
+|   |   |- main.dart    <- App entry point & theme configuration
 |   |- pubspec.yaml     <- Package dependencies
-|- backend/             <- FastAPI Python server (Phase 3+)
-|- r_research/          <- Credit scoring R scripts 
-|- docs/                <- Project documentation
 ```
 
----
-
-## Phase 0 : What Was Built
-
-Phase 0 establishes the **complete data foundation** that every screen in the app reads from and writes to.
-
-### Development Environment
-
-| Tool | Version | Notes  |
-|-|-|-|
-| Flutter SDK | 3.44.8 stable | Installed via git clone snap unavailable on Linux Mint |
-| Android Studio | Quail 2 \| 2026.1.2 | Flatpak install ( required manual Dart SDK path config) |
-| Android SDK | 36.1.0 | Includes ADB, emulator, platform-tools |
-| Dart | Bundled with Flutter | Autocomplete configured in Android Studio |
-| Linux Mint | 21.3 (64-bit) | Dell Latitude 5410 |
-
-**`flutter doctor` result: No issues found  (all 6 checks green)
-
----
-
-### Data Models
-
-#### `lib/models/sale.dart`
-Defines what a single sale looks like and how it moves between the app and SQLite.
-
-**Key design decisions:**
-- `costPrice` stored separately so profit can be computed (revenue alone is not enough for FHS)
-- `isSynced` implements the offline queue (sales recorded offline are uploaded when connectivity returns)
-- `toMap()` / `fromMap()` handle conversion to/from SQLite row format
-
----
-
-#### `lib/models/inventory_item.dart`
-Defines a stock-keeping unit with a **per-item threshold** for stock status.
-- This getter computes status relative to each item's own `lowStockThreshold`.
-
----
-
-### Database Layer
-
-#### `lib/services/database_helper.dart`
-
-A **singleton** SQLite service (only one database connection ever exists). Implemented using the `sqflite` package with `sqflite_common_ffi` for Linux desktop support during development.
-
----
-
-### Offline-First Architecture
-
-Every sale is saved locally first (no internet required).
-
-```
-Record Sale -> SQLite (is_synced = 0) -> internet detected -> upload to Supabase -> mark is_synced = 1
-```
-
-If upload fails, the record stays at `is_synced = 0` and retries automatically next time.
-
----
-
-### App Shell
-
-`main.dart` sets up:
-- MusikaKhula teal theme (`#0F6E56 a.k.a MM_Green`)
-- Bottom navigation bar (Home / Analysis / Stock Track / More)
-- Placeholder screens for all four tabs
-
-**Emulator:** Pixel 7 AVD (app running in debug mode)
-
----
-
-## Setup Challenges Resolved
-
-| # | Problem | Resolution |
-|-|-|-|
-| 1 | `snap: command not found` | Manual git clone install of Flutter |
-| 2 | CMake clang++ missing | `sudo apt-get install clang cmake ninja-build...` |
-| 3 | `adb: command not found` | Added `ANDROID_HOME/platform-tools` to PATH |
-| 4 | `emulator -list-avds` empty | Flatpak stores AVDs in non-standard path |
-| 5 | AVD not found | Set `ANDROID_AVD_HOME` to Flatpak config path |
-
-
----
-
-## How to Run (Development)
-
-### Prerequisites
-- Linux Mint 21.3 (or Ubuntu-based)
-- Flutter 3.44.8 stable installed at `~/flutter`
-- Android Studio with Flutter plugin
-- Pixel 7 AVD created in Android Studio
-
-### Environment variables (`~/.bashrc`)
-```bash
-export PATH="$PATH:$HOME/flutter/bin"
-export ANDROID_HOME="$HOME/Android/Sdk"
-export PATH="$PATH:$ANDROID_HOME/platform-tools"
-export PATH="$PATH:$ANDROID_HOME/emulator"
-export ANDROID_AVD_HOME="$HOME/.var/app/com.google.AndroidStudio/config/.android/avd"
-```
-
-### Run the app
-```bash
-# 1. Launch the emulator
-emulator -avd Pixel_7 &
-
-# 2. Wait for Android to boot (~30 seconds), then:
-cd ~/MusikaKhula/mobile_app
-flutter run
-
-```
-
----
-
-##  Dependencies (`pubspec.yaml`)
-
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  sqflite: ^2.3.3
-  sqflite_common_ffi: current
-  path: ^1.9.0
-  path_provider: ^2.1.3
-  supabase_flutter: ^2.5.6
-  cupertino_icons: ^1.0.8
-```
-
----
-
-## All 18 Screens
-
-| Screen | File | Phase |
-|-|-|-|
-| Language Select | `language_select_screen.dart` | 3 |
-| Login | `login_screen.dart` | 3 |
-| Register | `register_screen.dart` | 3 |
-| **Home** | `home_screen.dart` | **1 (next)** |
-| Analysis | `analysis_screen.dart` | 2 |
-| **Stock Track** | `stock_track_screen.dart` | **1 (next)** |
-| More | `more_screen.dart` | 1 |
-| **Record Sale** | `record_sale_screen.dart` | **1 (next)** |
-| AI Forecast | `ai_forecast_screen.dart` | 4 |
-| Currency Settings | `currency_settings_screen.dart` | 5 |
-| Mobile Money Sync | `mobile_money_screen.dart` | 4 |
-| Savings Goals | `savings_goals_screen.dart` | 2 |
-| Loans | `loans_screen.dart` | 4 |
-| Notifications | `notifications_screen.dart` | 5 |
-| Financial Health | `financial_health_screen.dart` | 2 |
-| Data Sync Status | `data_sync_screen.dart` | 3 |
-| Support Chat | `support_chat_screen.dart` | 5 |
-| Backup & Restore | `backup_screen.dart` | 5 |
-
----
-
-## Documentation
-
-- Will be provided when system completes
 ---
 
 ## Developer
 
 **Dean** : BSc Honours Informatics, Year 2  
 National University of Science & Technology (NUST), Bulawayo, Zimbabwe
-
----
-
-## Process Model
-
-This project follows the **Evolutionary Development** model as defined in:
-
-- Sommerville, I. (2007). *Software Engineering*, 8th Edition. Pearson Education.
-
-Each phase produces a testable, functional increment of the system.
 
 ---
 
