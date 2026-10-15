@@ -29,7 +29,7 @@ Built with Flutter + SQLite (offline-first architecture).
   - Gradient profit card displaying aggregated profits and financial status.
   - Credit health card (`Fair` / score `591`).
   - Services grid (Sale, Forecast, Currency, M-Money, Savings, Loans, Alerts).
-  - Summary cards (Total Products, Total Revenue, Total Sold, Expenses / COGS).
+  - Summary cards (**Total Products**, **Total Revenue**, **Total Sold**, **Expenses** / Active Inventory Valuation).
 - **Analysis Screen**:
   - Business performance metrics (Total Revenue, Total Profit, Total Units Sold).
 - **Stock Track Screen (Inventory Management)**:
@@ -40,14 +40,15 @@ Built with Flutter + SQLite (offline-first architecture).
 - **More Screen**:
   - Comprehensive settings & features list: Vendor Intelligence, Change Language, Disable Offline Mode, Toggle Dark/Light Mode, Data Sync Status, Voice Mode, Backup & Restore, and Support Chat.
 - **Record Sale Screen**:
-  - Autocomplete & dropdown product lookup linked to inventory with automatic category and cost price auto-fill.
-  - Zimbabwean Multi-Currency support: **`USD`**, **`ZiG`**, and **`Rand (ZAR)`**.
+  - Dropdown product lookup linked to inventory with automatic category and cost price auto-fill.
+  - Zimbabwean Multi-Currency support: **`USD`**, **`ZiG`**, and **`ZAR(Rand)`** using informal market default conversion rates (**`1 USD = 40 ZiG`**, **`1 USD = 20 ZAR(Rand)`**).
   - Local Payment Methods: **`Cash`**, **`EcoCash`**, **`OneMoney`**, and **`Credit given (Chikwereti)`**.
-  - Real-time live profit calculation with safety guards against empty input states.
+  - Real-time live profit calculation with safety guards against empty input states and negative profit defaults.
   - Today's sales list and automatic SQLite inventory stock deduction upon saving.
 
 ### 2. Zimbabwean Market Context & Architecture
 - **Chikwereti (Credit given)**: Isolates customer debt and credit sales from immediate liquid cash flow in database revenue/profit aggregations (`payment_method != 'Credit given (Chikwereti)'`), preventing "ghost" cash collections.
+- **Reverse-Engineered Multi-Currency Dashboard Normalization**: SQL queries dynamically convert sales recorded in `ZiG` and `ZAR(Rand)` back to baseline `USD` metrics for Home Screen reporting.
 - **Immutable Sales Snapshot Architecture**: Stores static price/category snapshots in individual sale records to insulate historical financial logs from future inventory wholesale cost fluctuations.
 - **Strict Input Security & Validation**: Fortified numerical inputs with integer-only and 2-decimal precision formatters (`FilteringTextInputFormatter`) and rigorous form validators to block data entry threats.
 
