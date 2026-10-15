@@ -26,8 +26,16 @@ class _RecordSaleScreenState extends State<RecordSaleScreen> {
   double _calculatedProfit = 0.0;
   List<Sale> _todaysSales = [];
 
-  final List<String> _currencies = ['USD', 'ZiG', 'ZAR'];
+  final List<String> _currencies = ['USD', 'ZiG', 'ZAR(Rand)'];
   final List<String> _paymentMethods = ['Cash', 'EcoCash', 'OneMoney', 'Credit given (Chikwereti)'];
+
+  // Multi-Currency Exchange Rates from USD baseline (Informal Market standard: 1 USD = 40 ZiG, 1 USD = 20 Rand)
+  static const Map<String, double> _exchangeRatesFromUSD = {
+    'USD': 1.0,
+    'ZiG': 40.0,
+    'ZAR(Rand)': 20.0,
+    'ZAR': 20.0,
+  };
 
   @override
   void initState() {
@@ -50,6 +58,23 @@ class _RecordSaleScreenState extends State<RecordSaleScreen> {
     });
   }
 
+  double get _convertedCostPrice {
+    final baseUsdCost = _selectedItem?.costPrice ?? 0.0;
+    final rate = _exchangeRatesFromUSD[_selectedCurrency] ?? 1.0;
+    return baseUsdCost * rate;
+  }
+
+  String get _costPriceDisplayText {
+    if (_selectedItem == null) return '';
+    final baseUsdCost = _selectedItem!.costPrice;
+    if (_selectedCurrency == 'USD') {
+      return '\$${baseUsdCost.toStringAsFixed(2)} USD';
+    } else {
+      final convertedCost = _convertedCostPrice;
+      return '$_selectedCurrency ${convertedCost.toStringAsFixed(2)} (\$${baseUsdCost.toStringAsFixed(2)} USD)';
+    }
+  }
+
   void _updateProfit() {
     final String priceText = _unitPriceController.text.trim();
     final String qtyText = _qtyController.text.trim();
@@ -63,10 +88,10 @@ class _RecordSaleScreenState extends State<RecordSaleScreen> {
 
     final int qty = int.parse(qtyText);
     final double unitPrice = double.parse(priceText);
-    final double costPrice = _selectedItem?.costPrice ?? 0.0;
+    final double costPriceInSelectedCurrency = _convertedCostPrice;
 
     setState(() {
-      _calculatedProfit = (unitPrice - costPrice) * qty;
+      _calculatedProfit = (unitPrice - costPriceInSelectedCurrency) * qty;
     });
   }
 
@@ -89,7 +114,7 @@ class _RecordSaleScreenState extends State<RecordSaleScreen> {
         category: _selectedItem!.category,
         quantity: inputQty,
         unitPrice: double.parse(_unitPriceController.text),
-        costPrice: _selectedItem!.costPrice,
+        costPrice: _convertedCostPrice,
         currency: _selectedCurrency,
         paymentMethod: _selectedPaymentMethod,
         saleDate: DateTime.now(),
@@ -166,10 +191,8 @@ class _RecordSaleScreenState extends State<RecordSaleScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   TextFormField(
-                                    key: ValueKey('${_selectedItem?.productName}_cost'),
-                                    initialValue: _selectedItem != null 
-                                        ? '\$${_selectedItem!.costPrice.toStringAsFixed(2)} $_selectedCurrency' 
-                                        : '',
+                                    key: ValueKey('${_selectedItem?.productName}_${_selectedCurrency}_cost'),
+                                    initialValue: _costPriceDisplayText,
                                     enabled: false,
                                     decoration: _buildInputDecoration('Original Item Cost Price (Read-Only)'),
                                   ),
@@ -219,7 +242,12 @@ class _RecordSaleScreenState extends State<RecordSaleScreen> {
                                     value: _selectedCurrency,
                                     decoration: _buildInputDecoration('Currency'),
                                     items: _currencies.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-                                    onChanged: (v) => setState(() => _selectedCurrency = v!),
+                                    onChanged: (v) {
+                                      setState(() {
+                                        _selectedCurrency = v!;
+                                        _updateProfit();
+                                      });
+                                    },
                                   ),
                                   const SizedBox(height: 16),
                                   DropdownButtonFormField<String>(

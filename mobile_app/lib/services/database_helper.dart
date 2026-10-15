@@ -26,17 +26,15 @@ class DatabaseHelper {
     final path = join(dbPath, fileName);
     return await openDatabase(
       path,
-      version: 3,
+      version: 6, // Bumped to 6
       onCreate: (db, version) async {
         await _createDB(db, version);
         await _seedInitialData(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
+        await db.execute('DROP TABLE IF EXISTS sales');
+        await db.execute('DROP TABLE IF EXISTS inventory');
         await _createDB(db, newVersion);
-        await _seedInitialData(db);
-      },
-      onOpen: (db) async {
-        await _createDB(db, 3);
         await _seedInitialData(db);
       },
     );
@@ -89,7 +87,7 @@ class DatabaseHelper {
         }
       }
     } catch (e) {
-      // Handle seeding error gracefully if table is not yet ready
+      // Handle seeding error
     }
   }
 
@@ -134,25 +132,47 @@ class DatabaseHelper {
         where: 'id = ?', whereArgs: [id]);
   }
 
-  // Exclude 'Credit given (Chikwereti)' so dashboard reflects actual liquid cash flow
+  // Multi-currency reverse conversion to USD for Home Screen Dashboard Aggregations (1 USD = 40 ZiG, 1 USD = 20 Rand)
+  // Exclude 'Credit given (Chikwereti)' for liquid cash calculations
   Future<double> getTotalRevenue() async {
     final db = await database;
-    final result = await db.rawQuery(
-        "SELECT SUM(unit_price * quantity) as total FROM sales WHERE payment_method != 'Credit given (Chikwereti)'");
+    final result = await db.rawQuery('''
+      SELECT SUM(
+        CASE currency
+          WHEN 'ZiG' THEN (unit_price * quantity) / 40.0
+          WHEN 'ZAR(Rand)' THEN (unit_price * quantity) / 20.0
+          WHEN 'ZAR' THEN (unit_price * quantity) / 20.0
+          ELSE (unit_price * quantity)
+        END
+      ) as total 
+      FROM sales 
+      WHERE payment_method != 'Credit given (Chikwereti)'
+    ''');
     return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
   Future<double> getTotalProfit() async {
     final db = await database;
-    final result = await db.rawQuery(
-        "SELECT SUM((unit_price - cost_price) * quantity) as total FROM sales WHERE payment_method != 'Credit given (Chikwereti)'");
+    final result = await db.rawQuery('''
+      SELECT SUM(
+        CASE currency
+          WHEN 'ZiG' THEN ((unit_price - cost_price) * quantity) / 40.0
+          WHEN 'ZAR(Rand)' THEN ((unit_price - cost_price) * quantity) / 20.0
+          WHEN 'ZAR' THEN ((unit_price - cost_price) * quantity) / 20.0
+          ELSE ((unit_price - cost_price) * quantity)
+        END
+      ) as total 
+      FROM sales 
+      WHERE payment_method != 'Credit given (Chikwereti)'
+    ''');
     return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 
+  // Expenses reflect total cost price of active inventory stock
   Future<double> getTotalExpenses() async {
     final db = await database;
     final result = await db.rawQuery(
-        "SELECT SUM(cost_price * quantity) as total FROM sales WHERE payment_method != 'Credit given (Chikwereti)'");
+        'SELECT SUM(cost_price * quantity) as total FROM inventory');
     return (result.first['total'] as num?)?.toDouble() ?? 0.0;
   }
 

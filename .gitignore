@@ -1,0 +1,25 @@
+# IDEs and Editors
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.DS_Store
+Thumbs.db
+
+# R / Analysis temp files
+.Rhistory
+.RData
+.Ruserdata
+
+# Flutter / Dart build outputs & caches
+**/build/
+**/.dart_tool/
+**/.pub/
+**/.pub-cache/
+**/ios/Flutter/.last_build_id
+**/android/.gradle/
+**/android/app/build/
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
