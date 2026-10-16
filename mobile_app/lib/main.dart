@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'services/database_helper.dart';
 import 'screens/home_screen.dart';
 import 'screens/analysis_screen.dart';
 import 'screens/stock_track_screen.dart';
@@ -8,6 +9,40 @@ const int MK_Green = 0xFF0F6E56;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Eagerly initialize SQLite database before rendering UI to prevent startup lock contention
+  try {
+    await DatabaseHelper.instance.database;
+  } catch (e) {
+    debugPrint('Database eager init exception: $e');
+  }
+
+  // Global Error Widget builder so runtime exceptions render error details on screen rather than crashing
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F6F6),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 56),
+              const SizedBox(height: 16),
+              const Text('An error occurred:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 12),
+              Text(
+                details.exceptionAsString(),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, color: Colors.redAccent),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  };
+
   runApp(const MusikaKhulaApp());
 }
 
